@@ -1,120 +1,97 @@
-Bitcoin Core integration/staging tree
+ClusterCoin
 =====================================
 
-https://www.bitcoin.org
+http://clustercoin.org
 
-Copyright (c) 2009-2014 Bitcoin Core Developers
+Copyright (c) 2014 ClusterCoin Developers
 
-What is Bitcoin?
-----------------
+What is ClusterCoin?
+=====================================
 
-Bitcoin is an experimental new digital currency that enables instant payments to
-anyone, anywhere in the world. Bitcoin uses peer-to-peer technology to operate
-with no central authority: managing transactions and issuing money are carried
-out collectively by the network. Bitcoin Core is the name of open source
-software which enables the use of this currency.
+In this project we are going to change the fundamental rule of block chain generation and improve block confirmation timing to mere few seconds. 
+The key factor that currently prevents us to do this is a requirement to synchronize block chain between all parts of the network, located all over the world. If blocks will be generated too fast and users will not receive new blocks fast enough we have a huge risk to trigger fork in block chain that will eventually have a devastating effect on the currency and the market. 
+For this project we invented a completely new clustering algorithm that will aggregate all transactions within several geographic clusters in order to minimize transmission time of transactions within certain cluster. each cluster will process transactions independently and then periodically synchronize transactions between geographic clusters. 
+This approach will allow significantly speed up the block chain refresh rate on all nodes of the network, that will allow reduce block generation time and consequently reduce the time of transaction confirmation.
 
 For more information, as well as an immediately useable, binary version of
-the Bitcoin Core software, see https://www.bitcoin.org/en/download.
+the ClusterCoin software, see http://clustercoin.org/
 
-License
--------
+ICO - Initial Coin Offering
+=====================================
+In order to fund the development of ClusterCoin we decided to organize the Initial Coin Offering. A total of 7,000,000 CLSTR (19% of total coins) will be sent upon the end of ICO to ICO investors. ICO service hosted by Bittrex
 
-Bitcoin Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
-information or see http://opensource.org/licenses/MIT.
+https://bittrex.com/Market/Index?MarketName=BTC-CLSTR
 
-Development process
--------------------
+ClusterCoins reserved for ICO: 7,000,000 CLSTR (~19% of total coins)
+ClusterCoin ICO price: 10,000 satoshi = 0.00010000 BTC
+ICO success criteria: at least 10% of max amount sold in the ICO, i.e. at least 700,000 CLSTR
 
-Developers work in their own trees, then submit pull requests when they think
-their feature or bug fix is ready.
+To achieve these truly ambitious goals that we set in the white paper we would need a considerable amount of funds. Our team consists of 4 experts in C/C++, web development and PR. We love crypto too! However, bitcoin has many shortcomings and we are going to significantly improve it. Anyone will be able to use ClusterCoin in their everyday life as blazing fast, anonymous and secure currency!
 
-If it is a simple/trivial/non-controversial change, then one of the Bitcoin
-development team members simply pulls it.
+Message from Bittrex:
+Bittrex will be hosting the ClusterCoin ICO. As a reminder, we are providing as escrow for the development team. We are not endorsing this coin or any others on our exchange. Please do your own research before trading. Below are the terms of the ICO.
 
-If it is a *more complicated or potentially controversial* change, then the patch
-submitter will be asked to start a discussion (if they haven't already) on the
-[mailing list](http://sourceforge.net/mailarchive/forum.php?forum_name=bitcoin-development).
+* We will review the walet before initially adding it.
+* We will hold all Premine Coins - 7,000,000 CLSTR
+* The ICO will run for 7 days starting August 15th, 2014
+* If success conditions are met, we will destroy all remaining coins.
+* If success conditions are NOT met, we will buy back all outstanding coins at the ICO price
+* Once the ICO is over we will verify there is working wallet and block explorer
+* We will hold onto the funds in escrow for 3 days - at which time, we will release the funds.
+* No sales of the coin will be allowed until after the ICO ends
+* ALL SALES ARE FINAL AND THERE WILL BE NO REFUNDS - except if the success criteria isn't met.
 
-The patch will be accepted if there is broad consensus that it is a good thing.
-Developers should expect to rework and resubmit patches if the code doesn't
-match the project's coding conventions (see [doc/coding.md](doc/coding.md)) or are
-controversial.
 
-The `master` branch is regularly built and tested, but is not guaranteed to be
-completely stable. [Tags](https://github.com/bitcoin/bitcoin/tags) are created
-regularly to indicate new official, stable release versions of Bitcoin.
+FAQ
+=====================================
 
-Testing
--------
+So how do we collect and analyze information about previous transaction and make a decision for Geo-cluster creation?
+----------------
 
-Testing and code review is the bottleneck for development; we get more pull
-requests than we can review and test on short notice. Please be patient and help out by testing
-other people's pull requests, and remember this is a security-critical project where any mistake might cost people
-lots of money.
+Any coin consists of two types of nodes. Transaction nodes  – nodes that generate only transactions (common users) and Block nodes – nodes that generate blocks and transactions (pools). It is important to mention that not all of the transaction nodes have direct contact with pools – many of them only contact pools via other nodes. From the network synchronization perspective latency between pool and node becomes critical if we want to reduce confirmation time. I.e. How fast information reaches from a node that initiate transaction to the pool and how fast block information reaches from the pool back to the node.  This information can easily be gathered and used in order to make a decision about the requirement of introducing or destroying additional managed fork. Practically, we will use statistical analyses of latency time between nodes. We are planning to use all of the nodes in the network within this process.
 
-### Automated Testing
+How node will choose appropriate fork to work with its transaction?
+----------------
 
-Developers are strongly encouraged to write unit tests for new code, and to
-submit new unit tests for old code. Unit tests can be compiled and run (assuming they weren't disabled in configure) with: `make check`
+Every node connected to the network will constantly determine effective latency for all fork gateways. The closest gateway will be used to serve this node. For example, if you live in the USA and you use your wallet installed on a smartphone – your managed fork will be one of the North American forks – all transactions (buys/sells) that you generate will be served by this fork. Then at some point you take a flight to the China. As soon as you arrive and connect your smartphone to the Internet your wallet automatically detects that now nearest fork – is one of the Chinas forks. While in China all your transactions will be served by the nearest Asian fork.
 
-Every pull request is built for both Windows and Linux on a dedicated server,
-and unit and sanity tests are automatically run. The binaries produced may be
-used for manual QA testing — a link to them will appear in a comment on the
-pull request posted by [BitcoinPullTester](https://github.com/BitcoinPullTester). See https://github.com/TheBlueMatt/test-scripts
-for the build/test scripts.
+How do I make an inter-fork transactions? 
+----------------
 
-### Manual Quality Assurance (QA) Testing
+In between synchronizations each node will receive only blocks that belong to its nearest fork. Therefore, local transaction (i.e. Payment in the local store) will be confirmed very fast. Information of the transactions in other forks will be received as soon as the next synchronization block is generated (maximum 109 seconds). This is absolutely adequate timing of the international transactions, presuming that amount of such transactions will be relatively low compared to the local transactions.
 
-Large changes should have a test plan, and should be tested by somebody other
-than the developer who wrote the code.
-See https://github.com/bitcoin/QA/ for how to create a test plan.
+So this means that now everyone will know my location?
+----------------
 
-Translations
-------------
+No. Everyone will know what fork is serving you. We expect that single fork will be able to serve thousands of miles and millions of users. Besides, big brother already knows about you much more than just that.
 
-Changes to translations as well as new translations can be submitted to
-[Bitcoin Core's Transifex page](https://www.transifex.com/projects/p/bitcoin/).
+Who will generate synchronization blocks? 
+----------------
 
-Translations are periodically pulled from Transifex and merged into the git repository. See the
-[translation process](doc/translation_process.md) for details on how this works.
+Synchronization blocks will be generated by pools located all over the world. In order to maintain high speed of block generation, those polls will maintain a direct connection to each other and coordinate each synchronization block generation. There will be no reward for this kind of blocks.
 
-**Important**: We do not accept translation changes as GitHub pull requests because the next
-pull from Transifex would automatically overwrite them again.
+How do we deal with unstable block generation speed in managed artificial forks? 
+----------------
 
-Translators should also subscribe to the [mailing list](https://groups.google.com/forum/#!forum/bitcoin-translators).
+It is common knowledge that block generation time have not constant but rather approximate value. In fact, all blocks are generated only close to the value that is defined in coin specification. This is why sometimes before generating block some of the forks will not be fast enough to process through usual 99 blocks. In this case we will use a custom algorithm in order to form special dummy-blocks that will fill remaining blocks in block chain. 
 
-Development tips and tricks
----------------------------
+Will this require rebuilding all mining software?
+----------------
 
-**compiling for debugging**
+No. All pools will be able to continue use of stratum-mining and mpos/nomp. The only difference in pools is that every pool will be now mining only one of the managed forks. Synchronization blocks will be generated by coin daemon without pool software interference.
 
-Run configure with the --enable-debug option, then make. Or run configure with
-CXXFLAGS="-g -ggdb -O0" or whatever debug flags you need.
+How big will be changes in BitCoin source?
+----------------
 
-**debug.log**
+Huge. In order to test and implement such changes we will have to completely rewrite Bit Coin source and we will require quite a lot of resources to do that. This is probably most ambitious project in AltCoin history, but we got clear vision how to make it work. 
 
-If the code is behaving strangely, take a look in the debug.log file in the data directory;
-error and debugging message are written there.
+I saw your timeline, its pretty tight are you sure you will be able to deliver results that fast?
+----------------
 
-The -debug=... command-line option controls debugging; running with just -debug will turn
-on all categories (and give you a very large debug.log file).
+Yes, we are confident that we will be able to show first results in the days following coin launch. We are not just starting this project from scratch. We planned and prepared for this for the past 6 months and a lot of preliminary work is already done. 
 
-The Qt code routes qDebug() output to debug.log under category "qt": run with -debug=qt
-to see it.
+Anonimity
+----------------
 
-**testnet and regtest modes**
+We do not prioritize anonymity over speed of transaction, however it is clear that after each synchronization all of the transactions will be automatically mixed. Therefore Inter - Cluster transactions are practically unbreakable. If you are willing to sacrifice transaction confirmation speed to extra anonymity - you may enable "Use Sunc pool as mixing pool option" and send all your, even In-cluster, transactions through Sunc pool. The price is 109 second confirmation time instead of 3 seconds. 
 
-Run with the -testnet option to run with "play bitcoins" on the test network, if you
-are testing multi-machine code that needs to operate across the internet.
-
-If you are testing something that can run on one machine, run with the -regtest option.
-In regression test mode blocks can be created on-demand; see qa/rpc-tests/ for tests
-that run in -regest mode.
-
-**DEBUG_LOCKORDER**
-
-Bitcoin Core is a multithreaded application, and deadlocks or other multithreading bugs
-can be very difficult to track down. Compiling with -DDEBUG_LOCKORDER (configure
-CXXFLAGS="-DDEBUG_LOCKORDER -g") inserts run-time checks to keep track of what locks
-are held, and adds warning to the debug.log file if inconsistencies are detected.
