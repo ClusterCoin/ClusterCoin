@@ -1241,20 +1241,20 @@ void static PruneOrphanBlocks()
 
 int64_t GetBlockValue(int nHeight, int64_t nFees)
 {
-		//Block rewards:
-		// 1st block: 7,000,000 CLSTR (ICO fund)
-		// 2 - 13,000 blocks: 0 CLSTR (no mining reward during ICO)
-		// 13,001 - 1,000,000 blocks: 30 CLSTR
-		// 1,000,001 - .. : 0 CLSTR
+    //Block rewards:
+    // 1st block: 7,000,000 CLSTR (ICO fund)
+    // 2 - 13,000 blocks: 0 CLSTR (no mining reward during ICO)
+    // 13,001 - 10,000,000 blocks: 3 CLSTR
+    // 10,000,001 - .. : 0 CLSTR
 
-		int64_t nSubsidy = 0 * COIN;
-		if (nHeight == 1)
-		{
-			nSubsidy = 7000000 * COIN;
-		} else if (nHeight > 13000 && nHeight <= 1000000)
-		{
-			nSubsidy = 30 * COIN;
-		};
+    int64_t nSubsidy = 0 * COIN;
+    if (nHeight == 1)
+    {
+      nSubsidy = 7000000 * COIN;
+    } else if (nHeight > 13000 && nHeight <= 10000000)
+    {
+      nSubsidy = 3 * COIN;
+    }
     return nSubsidy + nFees;
 }
 
